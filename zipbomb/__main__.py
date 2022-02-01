@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 try: from . import make_zip
-except: from __init__ import make_zip
+except ImportError: from __init__ import make_zip
 def main():
     args = ArgumentParser(description="Create a zip bomb")
     args.add_argument("-o", "--output", default="bomb.zip", help="output file")
