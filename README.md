@@ -1,37 +1,38 @@
-# nothingness
+# zipbomb
 
-This is nothing, just a template for PyPI packages
+Create zipbombs using python
+
+Based on [David Fifield's project](https://www.bamsoftware.com/hacks/zipbomb/)
 
 ## Installation
 
 ### From PyPI
 
 ```sh
-pip3 install nothingness
+pip3 install zipbomb
 ```
 
 ### From GitHub
 
 ```sh
-pip3 install git+https://github.com/donno2048/nothingness
+pip3 install git+https://github.com/donno2048/zipbomb
 ```
 
 ## Usage
 
-### Import fun from \_\_init__.py
-
-```py
-from nothingness import fun
-```
-
-### Run \_\_main__.py
-
 ```sh
-python3 -m nothingness
-```
+$ zipbomb -h
+usage: zipbomb [-h] [-o OUTPUT] [-n NUM_FILES] [-s COMPRESSED_SIZE]
 
-### Run main from \_\_main__.py
+Create a zip bomb
 
-```sh
-nothingness
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file [default: bomb.zip]
+  -n NUM_FILES, --num-files NUM_FILES
+                        number of files in the zip [default: 100]
+  -s COMPRESSED_SIZE, --compressed-size COMPRESSED_SIZE
+                        compressed size of each file (in Kb) [default: 1000]
+
 ```
