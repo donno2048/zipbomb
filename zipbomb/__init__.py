@@ -1,130 +1,61 @@
-from struct import pack, error
-def mxv(m, v): # matrix x vector
-    r = 0
-    for shift in range(len(m)):
-        if (v>>shift) & 1: r ^= m[shift]
-    return r
-def l2h(sym_lengths): # length to huffman code
-    bl_count, max_length = {}, 0
-    for _, length in sym_lengths.items():
-        bl_count.setdefault(length, 0)
-        bl_count[length] += 1
-        max_length = max(max_length, length)
-    next_code, code = {}, 0
-    for length in range(max_length):
-        code = (code + bl_count.get(length, 0)) << 1
-        next_code[length + 1] = code
-    result = {}
-    for sym, length in sorted(sym_lengths.items(), key=lambda x: (x[1], x[0])):
-        result[sym] = next_code[length], length
-        next_code[length] += 1
-    return result
-class BitBuffer:
-    def __init__(self):
-        self.done = []
-        self.current = 0
-        self.bit_pos = 0
-    def push(self, x, n):
-        while n >= (8 - self.bit_pos):
-            self.current |= (x << self.bit_pos) & 0xff
-            x >>= (8 - self.bit_pos)
-            n -= (8 - self.bit_pos)
-            self.done.append(self.current)
-            self.current = 0
-            self.bit_pos = 0
-        self.current |= (x << self.bit_pos) & 0xff
-        self.bit_pos += n
-    def push_rev(self, x, n):
-        mask = (1<<n)>>1
-        while mask > 0:
-            self.push(x&mask and 1 or 0, 1)
-            mask >>= 1
-    def bytes(self):
-        out = bytes(self.done)
-        if self.bit_pos: out += bytes([self.current])
-        return out
-def make_zip(f, num_files, compressed_size):
-    CRC_M0 = [0xedb88320] + [1<<shift for shift in range(31)] + [1<<32]
-    CRC_M1 = [mxv(CRC_M0, v) for v in [1<<shift for shift in range(32)] + [(1<<32) + 1]]
-    code_length_lengths = {0: 2, 1: 3, 2: 3, 18: 1}
-    code_length_codes = l2h(code_length_lengths)
-    ll_lengths = {97: 2, 256: 2, 285: 1}
-    ll_codes = l2h(ll_lengths)
-    distance_lengths = {0: 1}
-    distance_codes = l2h(distance_lengths)
-    bits = BitBuffer()
-    bits.push(0b1, 1)
-    bits.push(0b10, 2)
-    bits.push(max(ll_lengths) + 1 - 257, 5)
-    bits.push(max(distance_lengths) + 1 - 1, 5)
-    CODE_LENGTH_ALPHABET = (16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15)
-    num_code_length_codes = max(CODE_LENGTH_ALPHABET.index(sym) for sym in code_length_lengths) + 1
-    bits.push(num_code_length_codes - 4, 4)
-    for code_length in CODE_LENGTH_ALPHABET[:num_code_length_codes]:
-        bits.push(code_length_lengths.get(code_length, 0), 3)
-    def skip(n):
-        while n >= 11:
-            if n < 138: x = n
-            elif n < 138 + 11 and code_length_lengths[18] < (n - 138) * code_length_lengths[0]: x = n - 11
-            else: x = 138
-            bits.push_rev(*code_length_codes[18])
-            bits.push(x - 11, 7)
-            n -= x
-        while n > 0:
-            bits.push_rev(*code_length_codes[0])
-            n -= 1
-    def output_code_length_tree(sym_lengths):
-        cur = 0
-        for sym, length in sorted(sym_lengths.items()):
-            skip(sym - cur)
-            bits.push_rev(*code_length_codes[length])
-            cur = sym + 1
-    output_code_length_tree(ll_lengths)
-    output_code_length_tree(distance_lengths)
-    n = 0
-    bits.push_rev(*ll_codes[97])
-    n += 1
-    is_even = bits.bit_pos % 2 == 0
-    n += (8 - bits.bit_pos + 1) // 2 * 258
-    prefix = bits.bytes()
-    bits = BitBuffer()
-    if not is_even: bits.push(*distance_codes[0])
-    while bits.bit_pos + ll_lengths[285] + distance_lengths[0] + ll_lengths[256] <= 8:
-        bits.push_rev(*ll_codes[285])
-        bits.push(*distance_codes[0])
-        n += 258
-    bits.push_rev(*ll_codes[256])
-    suffix = bits.bytes()
-    num_zeroes = compressed_size - len(prefix) - len(suffix)
-    n += num_zeroes * 1032
-    body = b"\x00" * num_zeroes
-    compressed_data = prefix + body + suffix
-    N = n
-    accum = [1<<shift for shift in range(33)]
-    for shift in range(8): accum = [mxv([CRC_M0, CRC_M1][(97>>shift)&1], v) for v in accum]
-    m = [1<<shift for shift in range(33)]
-    while n > 0:
-        if n & 1: m = [mxv(m, v) for v in accum]
-        accum = [mxv(accum, v) for v in accum]
-        n >>= 1
-    kernel, n, crc_matrix = compressed_data, n, m
-    central_directory = []
-    offset = 0
-    main_crc = (mxv(crc_matrix, 0x1ffffffff) & 0xffffffff) ^ 0xffffffff
-    main_file_offset = offset
-    try: offset += f.write(pack("<LHHHHHLLLHH", 0x04034b50, 20, 0, 8, 0x6ca0, 0x0548, main_crc, len(kernel), N, 1, 0) + b'0')
-    except error:
-        raise ValueError("Please choose size of 15Kb or more")
-    offset += f.write(kernel)
-    cd_offset = offset
-    for cd_header in central_directory: offset += f.write(cd_header.serialize(zip64=0))
-    for i in range(num_files):
-        letters = []
-        while True:
-            letters.insert(0, b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i % 36])
-            i = i // 36 - 1
-            if i < 0: break
-        offset += f.write(pack("<LHHHHHHLLLHHHHHLL", 0x02014b50, 20, 20, 0, 8, 0x6ca0, 0x0548, main_crc, len(kernel), N, len(bytes(letters)), 0, 0, 0, 0, 0, main_file_offset) + bytes(letters))
-    cd_size = offset - cd_offset
-    offset += f.write(pack("<LHHHHLLH", 0x06054b50, 0, 0, len(central_directory) + num_files, len(central_directory) + num_files, cd_size, cd_offset, 0))
-    return offset
+# warning: minified
+from struct import pack as J,error
+def E(m,v):
+	A=0
+	for B in range(len(m)):
+		if v>>B&1:A^=m[B]
+	return A
+def K(K):
+	F=K;B,C={},0
+	for (I,A) in F.items():B.setdefault(A,0);B[A]+=1;C=max(C,A)
+	D,E={},0
+	for A in range(C):E=E+B.get(A,0)<<1;D[A+1]=E
+	G={}
+	for (H,A) in sorted(F.items(),key=lambda x:(x[1],x[0])):G[H]=D[A],A;D[A]+=1
+	return G
+class S:
+	def __init__(A):A.done=[];A.current=0;A.bit_pos=0
+	def push(A,x,n):
+		while n>=8-A.bit_pos:A.current|=x<<A.bit_pos&255;x>>=8-A.bit_pos;n-=8-A.bit_pos;A.done.append(A.current);A.current=0;A.bit_pos=0
+		A.current|=x<<A.bit_pos&255;A.bit_pos+=n
+	def push_rev(B,x,n):
+		A=1<<n>>1
+		while A>0:B.push(x&A and 1 or 0,1);A>>=1
+	def bytes(A):
+		B=bytes(A.done)
+		if A.bit_pos:B+=bytes([A.current])
+		return B
+def make_zip(f,num_files,compressed_size):
+	L=num_files;T=[3988292384]+[1<<A for A in range(31)]+[1<<32];e=[E(T,A)for A in[1<<A for A in range(32)]+[(1<<32)+1]];F={0:2,1:3,2:3,18:1};M=K(F);G={97:2,256:2,285:1};N=K(G);H={0:1};U=K(H);A=S();A.push(1,1);A.push(2,2);A.push(max(G)+1-257,5);A.push(max(H)+1-1,5);V=16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15;W=max((V.index(A)for A in F))+1;A.push(W-4,4)
+	for g in V[:W]:A.push(F.get(g,0),3)
+	def h(n):
+		while n>=11:
+			if n<138:B=n
+			elif n<138+11 and F[18]<(n-138)*F[0]:B=n-11
+			else:B=138
+			A.push_rev(*M[18]);A.push(B-11,7);n-=B
+		while n>0:A.push_rev(*M[0]);n-=1
+	def X(sym_lengths):
+		B=0
+		for (C,D) in sorted(sym_lengths.items()):h(C-B);A.push_rev(*M[D]);B=C+1
+	X(G);X(H);B=0;A.push_rev(*N[97]);B+=1;i=A.bit_pos%2==0;B+=(8-A.bit_pos+1)//2*258;Y=A.bytes();A=S()
+	if not i:A.push(*U[0])
+	while A.bit_pos+G[285]+H[0]+G[256]<=8:A.push_rev(*N[285]);A.push(*U[0]);B+=258
+	A.push_rev(*N[256]);Z=A.bytes();a=compressed_size-len(Y)-len(Z);B+=a*1032;j=b'\x00'*a;k=Y+j+Z;b=B;D=[1<<A for A in range(33)]
+	for l in range(8):D=[E([T,e][97>>l&1],A)for A in D]
+	O=[1<<A for A in range(33)]
+	while B>0:
+		if B&1:O=[E(O,A)for A in D]
+		D=[E(D,A)for A in D];B>>=1
+	P,B,m=k,B,O;Q=[];C=0;c=E(m,8589934591)&4294967295^4294967295;n=C
+	try:C+=f.write(J('<LHHHHHLLLHH',67324752,20,0,8,27808,1352,c,len(P),b,1,0)+b'0')
+	except error:raise ValueError('Please choose size of 15Kb or more')
+	C+=f.write(P);d=C
+	for o in Q:C+=f.write(o.serialize(zip64=0))
+	for I in range(L):
+		R=[]
+		while True:
+			R.insert(0,b'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[I%36]);I=I//36-1
+			if I<0:break
+		C+=f.write(J('<LHHHHHHLLLHHHHHLL',33639248,20,20,0,8,27808,1352,c,len(P),b,len(bytes(R)),0,0,0,0,0,n)+bytes(R))
+	p=C-d;C+=f.write(J('<LHHHHLLH',101010256,0,0,len(Q)+L,len(Q)+L,p,d,0));return C
