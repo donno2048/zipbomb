@@ -28,16 +28,17 @@ class S:
 def make_zip(f,num_files,compressed_size):
 	L=num_files;T=[3988292384]+[1<<A for A in range(31)]+[1<<32];e=[E(T,A)for A in[1<<A for A in range(32)]+[(1<<32)+1]];F={0:2,1:3,2:3,18:1};M=K(F);G={97:2,256:2,285:1};N=K(G);H={0:1};U=K(H);A=S();A.push(1,1);A.push(2,2);A.push(max(G)+1-257,5);A.push(max(H)+1-1,5);V=16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15;W=max((V.index(A)for A in F))+1;A.push(W-4,4)
 	for g in V[:W]:A.push(F.get(g,0),3)
-	def h(n):
-		while n>=11:
-			if n<138:B=n
-			elif n<138+11 and F[18]<(n-138)*F[0]:B=n-11
-			else:B=138
-			A.push_rev(*M[18]);A.push(B-11,7);n-=B
-		while n>0:A.push_rev(*M[0]);n-=1
-	def X(sym_lengths):
+	def X(E):
 		B=0
-		for (C,D) in sorted(sym_lengths.items()):h(C-B);A.push_rev(*M[D]);B=C+1
+		for (C,D) in sorted(E.items()):
+			n=C-B
+			while n>=11:
+				if n<138:G=n
+				elif n<149 and F[18]<(n-138)*F[0]:G=n-11
+				else:G=138
+				A.push_rev(*M[18]);A.push(G-11,7);n-=G
+			while n>0:A.push_rev(*M[0]);n-=1
+			A.push_rev(*M[D]);B=C+1
 	X(G);X(H);B=0;A.push_rev(*N[97]);B+=1;i=A.bit_pos%2==0;B+=(8-A.bit_pos+1)//2*258;Y=A.bytes();A=S()
 	if not i:A.push(*U[0])
 	while A.bit_pos+G[285]+H[0]+G[256]<=8:A.push_rev(*N[285]);A.push(*U[0]);B+=258
