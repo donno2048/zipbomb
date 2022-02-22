@@ -2,3 +2,5 @@ build
 dist
 zipbomb.egg-info
 __pycache__
+*.zip
+bomb/

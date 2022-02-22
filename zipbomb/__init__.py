@@ -10,7 +10,7 @@ def I(K):
 	D,E={},0
 	for A in range(C):E=E+B.get(A,0)<<1;D[A+1]=E
 	G={}
-	for (H,A) in sorted(F.items(),key=lambda x:(x[1],x[0])):G[H]=D[A],A;D[A]+=1
+	for(H,A)in sorted(F.items(),key=lambda x:(x[1],x[0])):G[H]=D[A],A;D[A]+=1
 	return G
 class P:
 	def __init__(A):A.done=[];A.current=0;A.bit_pos=0
@@ -18,14 +18,14 @@ class P:
 		while n>=8-A.bit_pos:A.current|=x<<A.bit_pos&255;x>>=8-A.bit_pos;n-=8-A.bit_pos;A.done.append(A.current);A.current,A.bit_pos=0,0
 		A.current|=x<<A.bit_pos&255;A.bit_pos+=n
 	def push_rev(B,x,n):
-		A=1<<n>>1
+		A=1<<n-1
 		while A:B.push(x&A and 1 or 0,1);A>>=1
 	def bytes(A):
 		B=bytes(A.done)
 		if A.bit_pos:B+=bytes([A.current])
 		return B
 def make_zip(f,num_files,compressed_size):
-	J,Q,F=num_files,[3988292384]+[1<<A for A in range(31)]+[1<<32],{0:2,1:3,2:3,18:1};K,R=I(F),{0:2,256:2,285:1};L,S,A=I(R),I({0:1}),P();A.push(1,1);A.push(2,2);A.push(29,5);A.push(0,5);T=16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15;U=max((T.index(A)for A in F))+1;A.push(U-4,4)
+	O=(1<<32)-1;J,Q,F=num_files,[3988292384]+[1<<A for A in range(31)]+[O+1],{0:2,1:3,2:3,18:1};K,R=I(F),{0:2,256:2,285:1};L,S,A=I(R),I({0:1}),P();A.push(1,1);A.push(2,2);A.push(29,5);A.push(0,5);T=16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15;U=max((T.index(A)for A in F))+1;A.push(U-4,4)
 	for c in T[:U]:A.push(F.get(c,0),3)
 	def V(E,D=0):
 		for (G,H) in sorted(E.items()):
@@ -41,12 +41,12 @@ def make_zip(f,num_files,compressed_size):
 	if d:A.push(*S[0])
 	while A.bit_pos<=4:A.push_rev(*L[285]);A.push(*S[0]);B+=258
 	A.push_rev(*L[256]);X=A.bytes();Y=compressed_size-len(W)-len(X);B+=Y*1032;e=W+b'\x00'*Y+X;Z=B;C=[1<<A for A in range(33)]
-	for _ in range(8):C=[D([Q,[D(Q,A)for A in[1<<A for A in range(32)]+[(1<<32)+1]]][0],A)for A in C]
+	for _ in range(8):C=[D([Q,[D(Q,A)for A in[1<<A for A in range(32)]+[O+2]]][0],A)for A in C]
 	M=[1<<A for A in range(33)]
 	while B:
 		if B&1:M=[D(M,A)for A in C]
 		C=[D(C,A)for A in C];B>>=1
-	N,B,E=e,B,0;a=D(M,8589934591)&4294967295^4294967295
+	N,B,E=e,B,0;a=D(M,2*O+1)&O^O
 	try:E+=f.write(H('<LHHHHHLLLHH',67324752,20,0,8,0,0,a,len(N),Z,1,0)+b'0')
 	except error:raise ValueError()
 	E+=f.write(N);b=E
