@@ -5,12 +5,10 @@ def D(m,v,A=0):
 		if v>>B&1:A^=m[B]
 	return A
 def I(K):
-	F,B,C,D=K,{},0,{0:0}
-	for A in F.values():B.setdefault(A,0);B[A]+=1;C=max(C,A)
-	
-	for A in range(C):D[A+1]=D[A]+B.get(A,0)<<1
-	G={}
-	for(H,A)in sorted(F.items(),key=lambda x:(x[1],x[0])):G[H]=D[A],A;D[A]+=1
+	B,C,D,G={},K.values(),{0:0},{}
+	for A in C:B[A]=B.get(A,0)+1
+	for A in range(max(C)):D[A+1]=D[A]+B.get(A,0)<<1
+	for(H,A)in sorted(K.items(),key=lambda x:(x[1],x[0])):G[H]=D[A],A;D[A]+=1
 	return G
 class P:
 	def __init__(A):A.done=[];A.current=0;A.bit_pos=0
