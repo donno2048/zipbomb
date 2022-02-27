@@ -5,8 +5,8 @@ def D(m,v,A=0):
 		if v>>B&1:A^=m[B]
 	return A
 def I(K):
-	C,D,G=K.values(),{0:0},{};B={A:C.count(A)for A in C}
-	for A in range(max(C)):D[A+1]=D[A]+B.get(A,0)<<1
+	C,D,G=K.values(),{0:0},{}
+	for A in range(max(C)):D[A+1]=D[A]+C.count(A)<<1
 	for(H,A)in sorted(K.items(),key=lambda x:(x[1],x[0])):G[H]=D[A],A;D[A]+=1
 	return G
 class P:
