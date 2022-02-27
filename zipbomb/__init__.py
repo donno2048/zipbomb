@@ -5,10 +5,10 @@ def D(m,v,A=0):
 		if v>>B&1:A^=m[B]
 	return A
 def I(K):
-	F,B,C=K,{},0
+	F,B,C,D=K,{},0,{0:0}
 	for A in F.values():B.setdefault(A,0);B[A]+=1;C=max(C,A)
-	D,E={},0
-	for A in range(C):E=E+B.get(A,0)<<1;D[A+1]=E
+	
+	for A in range(C):D[A+1]=(D[A]+B.get(A,0))*2
 	G={}
 	for(H,A)in sorted(F.items(),key=lambda x:(x[1],x[0])):G[H]=D[A],A;D[A]+=1
 	return G
