@@ -8,6 +8,6 @@ def main():
     args.add_argument("-s", "--compressed-size", type=int, default=1000, help="compressed size of each file (in Kb)")
     args = args.parse_args()
     assert args.num_files > 0, "Number of files must be greater than 0"
-    assert args.compressed_size > 20, "Compressed size must be greater than 20"
+    assert args.compressed_size > 20, "Compressed size must be greater than 20" # actually, 15 is the minimum
     with open(args.output, "wb") as f: make_zip(f, args.num_files, args.compressed_size)
 if __name__ == "__main__": main()
