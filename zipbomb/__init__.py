@@ -4,11 +4,6 @@ def D(m,v,A=0):
 	for B in range(len(m)):
 		if v>>B&1:A^=m[B]
 	return A
-def I(K):
-	C,D,G=list(K.values()),[0],{}
-	for A in range(max(C)):D+=[D[A]+C.count(A)<<1]
-	for(H,A)in sorted(K.items(),key=lambda x:(x[1],x[0])):G[H]=D[A],A;D[A]+=1
-	return G
 class P:
 	def __init__(A):A.done=[];A.current=0;A.bit_pos=0
 	def push(A,x,n):
@@ -22,7 +17,7 @@ class P:
 		if A.bit_pos:B+=bytes([A.current])
 		return B
 def make_zip(f,num_files,compressed_size):
-	O=(1<<32)-1;J,Q,F=num_files,[3988292384]+[1<<A for A in range(31)]+[O+1],{0:2,1:3,2:3,18:1};K,R=I(F),{0:2,256:2,285:1};L,S,A=I(R),I({0:1}),P();A.push(1,1);A.push(2,2);A.push(29,5);A.push(0,5);T=16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15;U=max((T.index(A)for A in F))+1;A.push(U-4,4)
+	O=(1<<32)-1;J,Q,F=num_files,[3988292384]+[1<<A for A in range(31)]+[O+1],{0:2,1:3,2:3,18:1};K,R={18:(0,1),0:(2,2),1:(6,3),2:(7,3)},{0:2,256:2,285:1};L,S,A={285:(0,1),0:(2,2),256:(3,2)},{0:(0,1)},P();A.push(1,1);A.push(2,2);A.push(29,5);A.push(0,5);T=16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15;U=max((T.index(A)for A in F))+1;A.push(U-4,4)
 	for c in T[:U]:A.push(F.get(c,0),3)
 	def V(E,D=0):
 		for (G,H) in sorted(E.items()):
