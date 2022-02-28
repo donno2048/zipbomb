@@ -5,7 +5,7 @@ def D(m,v,A=0):
 		if v>>B&1:A^=m[B]
 	return A
 def make_zip(f,num_files,compressed_size):
-	O,J,Y,M=(1<<32)-1,num_files,compressed_size-15,[1<<A for A in range(33)];B,C=1033+Y*1032,[1996959894,3993919788,124634137,249268274,498536548,997073096,1994146192,3988292384]+[1<<A for A in range(24)]+[O+1];Z=B
+	O,J,Y,M=(1<<32)-1,num_files,compressed_size,[1<<A for A in range(33)];B,C=1033+Y*1032,[1996959894,3993919788,124634137,249268274,498536548,997073096,1994146192,3988292384]+[1<<A for A in range(24)]+[O+1];Z=B
 	while B:
 		if B&1:M=[D(M,A)for A in C]
 		C=[D(C,A)for A in C];B>>=1
