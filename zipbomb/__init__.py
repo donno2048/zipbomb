@@ -3,7 +3,7 @@ from struct import pack as F
 from functools import reduce
 G=lambda m,v:reduce(lambda i,j:i^j,[j*(v>>i&1) for i,j in enumerate(m)])
 def make_zip(f,num_files,compressed_size):
-	A,H,B,I=(1<<32)-1,num_files,compressed_size,[1<<A for A in range(33)];C,D=B*1032-14447,[1996959894,3993919788,124634137,249268274,498536548,997073096,1994146192,3988292384]+[1<<A for A in range(24)]+[A+1];K=C
+	A,H,B,I=(1<<32)-1,num_files,compressed_size,[1<<A for A in range(33)];C,D=B*1032-14447,[1996959894,3993919788,124634137,249268274,498536548,997073096,1994146192,3988292384]+I[:24]+[A+1];K=C
 	while C:
 		if C&1:I=[G(I,A)for A in D]
 		D=[G(D,A)for A in D];C>>=1
