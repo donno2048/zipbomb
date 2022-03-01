@@ -7,6 +7,6 @@ def make_zip(f,num_files,compressed_size):
 	while C:
 		if C&1:I=[G(I,A)for A in D]
 		D=[G(D,A)for A in D];C>>=1
-	L=G(I,2*A+1)&A^A;J=f.write(F('<LLLHLLLLLLLH',67324752,20,8,0,L,B,K,1,2176904496,8,1409003712,25695)+b'\x0b'+b'\0'*(B-15)+b'`');M=J
-	for E in range(H):N=str(E).encode();J+=f.write(F('<LLLLLLLHLLLL',33639248,1310740,524288,0,L,B,K,len(N),0,0,0,0)+N)
-	f.write(F('<LLHHLLH',101010256,0,H,H,J-M,M,0))
+	L=G(I,2*A+1)&A^A;J=f.write(F('<QLHLLLLQLH',85966670672,8,0,L,B,K,1,36536642864,1409003712,25695)+b'\x0b'+b'\0'*(B-15)+b'`');M=J
+	for E in range(H):N=str(E).encode();J+=f.write(F('<QQLLLHQQ',5629585467198288,524288,L,B,K,len(N),0,0)+N)
+	f.write(F('<QHHLLH',101010256,H,H,J-M,M,0))
