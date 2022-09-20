@@ -2,7 +2,7 @@
 
 Create zipbombs using Python.
 
-There is a C implementation [here](https://github.com/donno2048/czipbomb)
+There is a C implementation [here](https://github.com/donno2048/czipbomb) and a Java one [here](https://github.com/donno2048/jzipbomb)
 
 Based on [David Fifield's project](https://www.bamsoftware.com/hacks/zipbomb/)
 
