@@ -1,15 +1,16 @@
 # warning: minified
-from struct import pack as F
-from functools import reduce
-G=lambda m,v:reduce(lambda i,j:i^j,[j*(v>>i&1) for i,j in enumerate(m)])
+from functools import reduce as C
+A=lambda i:bytes.fromhex('%.8x'%i)[::-1]
+I=lambda m,v:C(lambda i,j:i^j,[B*(v>>A&1)for(A,B)in enumerate(m)])
+B=lambda i:b'\0'*i
 def make_zip(f,num_files,compressed_size):
-	A,H,B,I,a,o=(1<<32)-1,num_files,compressed_size,[1<<A for A in range(33)],range(8),[0]*8
-	for n in a:
-		for b in a:o[n]=o[n]>>1^3988292384*((1<<n>>b^o[n])&1)
-	C,D=B*1032-14447,o+I[:24]+[0];K=C
-	while C:
-		if C&1:I=[G(I,A)for A in D]
-		D=[G(D,A)for A in D];C>>=1
-	L=~G(I,A)&A;J=f.write(F('<QLHLLLLQLH',85966670672,8,0,L,B,K,1,36536642864,1409003712,25695)+b'\x0b'+b'\0'*(B-15)+b'`');M=J
-	for E in range(H):N=str(E).encode();J+=f.write(F('<QQLLLHQQ',5629585467198288,524288,L,B,K,len(N),0,0)+N)
-	f.write(F('<QHHLLH',101010256,H,H,J-M,M,0))
+	M,J,C,D,N,E=(1<<32)-1,num_files,compressed_size,[1<<A for A in range(33)],range(8),[0]*8
+	for F in N:
+		for S in N:E[F]=E[F]>>1^3988292384*((1<<F>>S^E[F])&1)
+	G,H=C*1032-14447,E+D[:24]+[0];O=G
+	while G:
+		if G&1:D=[I(D,A)for A in H]
+		H=[I(H,A)for A in H];G>>=1
+	P=~I(D,M)&M;K=f.write(b'PK\3\4\x14\0\0\0\x08'+B(5)+A(P)+A(C)+A(O)+b'\1\0\0\0\0\xed\xc0\x81\x08\0\0\0\xc0\xb0\xfbS_d\x0b'+B(C-15)+b'`');Q=K
+	for T in range(J):R=str(T).encode();K+=f.write(b'PK\1\2\x14\0\x14\0\0\0\x08'+B(5)+A(P)+A(C)+A(O)+A(len(R))[:2]+B(16)+R)
+	f.write(b'PK\5\6'+B(4)+A(J+(J<<16))+A(K-Q)+A(Q)+B(2))
