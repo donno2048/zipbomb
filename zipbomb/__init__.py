@@ -1,7 +1,6 @@
 # warning: minified
-from functools import reduce as C
 A=lambda i:bytes.fromhex('%.8x'%i)[::-1]
-I=lambda m,v:C(lambda i,j:i^j,[B*(v>>A&1)for(A,B)in enumerate(m)])
+I=lambda m,v:__import__('functools').reduce(lambda i,j:i^j,[B*(v>>A&1)for(A,B)in enumerate(m)])
 B=lambda i:b'\0'*i
 def make_zip(f,num_files,compressed_size):
 	M,J,C,D,N,E=(1<<32)-1,num_files,compressed_size,[1<<A for A in range(33)],range(8),[0]*8
